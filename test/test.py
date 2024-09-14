@@ -2,7 +2,7 @@ import unittest
 from typing import FunctionType
 import jmespath
 
-from metal_monad import MetalMonad
+from full_metal_monad import MetalMonad
 
 def tag(*tags):
     def decorator(func):

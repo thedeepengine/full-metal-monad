@@ -91,7 +91,7 @@ class MetalMonad:
             #     return self.owner
             # else:
             return MetalMonad(new_data)
-    
+
     def get(self, fields, names = {}, pattern =''):
         if isinstance(self.data, dict):
             if isinstance(fields, FunctionType):
@@ -265,6 +265,16 @@ class MetalMonad:
 
         self.data = recurse(self.data, target_key)
         return self.data
+
+    def single_value_or(self, message):
+        if not len(self) == 1:
+            raise ValueError(message)
+        return True
+
+    def single_or(self, message):
+        if not len(self) == 1:
+            raise ValueError(message)
+        return True
 
 def safe_jmes_search(query, data) -> Maybe:
     result = jmespath.search(query, data)
