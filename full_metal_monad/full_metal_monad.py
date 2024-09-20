@@ -58,6 +58,10 @@ class MetalMonad:
 
         def __call__(self, *args, **kwargs):
             new_data = []
+            if isinstance(self.owner.data, Some):
+                method = getattr(self.owner.data, self.func_str)
+                value = method(*args, **kwargs)
+                return MetalMonad(value)
             if hasattr(self.owner.data[0], self.func_str):
                 for item in self.owner.data:
                     method = getattr(item, self.func_str)
@@ -79,6 +83,7 @@ class MetalMonad:
                                 new_data.append(item)
                         else:
                             new_data.append(value)
+
             # return MetalMonad(new_data)
 
             # if self.owner.mode == 'inplace':
@@ -92,15 +97,29 @@ class MetalMonad:
             # else:
             return MetalMonad(new_data)
 
-    def get(self, fields, names = {}, pattern =''):
+    def get(self, fields, names = {}, pattern ='', raw=False):
         if isinstance(self.data, dict):
             if isinstance(fields, FunctionType):
                 return dict(filter(fields, self.data.items()))
             if isinstance(fields, str):
-                return jmespath.search(fields, self.data)
+                if '.' in fields:
+                    return __(jmespath.search(fields, self.data))
+                else:
+                    return __({k:v for k,v in self.data if k == fields})
             if isinstance(fields, list):
                 return {k:v for k,v in self.data.items() if k in fields}
         if isinstance(self.data, list):
+            if isinstance(self.data[0], dict):
+                if isinstance(fields, str):
+                    if '.' in fields:
+                        return __([jmespath.search(fields, i) for i in self.data])
+                    else:
+                        return __([v for i in self.data for k,v in i.items() if k == fields])
+            if isinstance(fields, int):
+                if 0 <= fields < len(self.data):
+                    return MetalMonad(Some(self.data[fields]))
+                else:
+                    return MetalMonad(Nothing)
             if isinstance(fields, FunctionType):
                 if isinstance(self.data[0], dict):
                     return [dict(filter(fields, i.items())) for i in self.data]
@@ -276,13 +295,24 @@ class MetalMonad:
             raise ValueError(message)
         return True
 
+# def get_index(idx, data) -> Maybe:
+#     if 0 <= idx < len(data):
+#         return data[idx]
+#     else:
+#         return Nothing
+    
 def safe_jmes_search(query, data) -> Maybe:
     result = jmespath.search(query, data)
     if result is not None:
         return Some(result)
     return Nothing
 
-
+def jmesOrNothing(query, data) -> Maybe:
+    result = jmespath.search(query, data)
+    if result is not None:
+        return Some(result)
+    return Nothing
+    
 class BooleanTest:
     def __init__(self, func):
         self.func = func
