@@ -12,7 +12,8 @@ setup(
     install_requires=['returns>=0.22.0, <1.0.0',
                       'rich>=13.0.0, <14.0.0',
                       'jmespath>=1.0.0, <2.0.0',
-                      'pandas>=2.0.3, <3.0.0'],
+                      'pandas>=2.0.3, <3.0.0',
+                      'multipledispatch'],
     extras_require={
         'dev': [
             'ipython>=8.18.1',
