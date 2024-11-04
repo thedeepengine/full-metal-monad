@@ -16,9 +16,7 @@ setup(
                       'multipledispatch'],
     extras_require={
         'dev': [
-            'ipython>=8.18.1',
             'mock>=5.1.0',
-            'pipdeptree>=2.23.3',
             'sphinx>=7.4.7',
             'wheel',
             'twine'
